@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+
+# environment files (secrets!)
+.env
+.env.*
+!.env.example
+
+# build output
+dist/
+build/
+
+# logs
+*.log
+npm-debug.log*
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Prisma / misc
+coverage/
