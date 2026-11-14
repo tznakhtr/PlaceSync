@@ -1,13 +1,21 @@
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Validate that JWT_SECRET is defined; if missing, throw clear error and stop
+  const configService = app.get(ConfigService);
+  const jwtSecret = configService.get<string>('JWT_SECRET');
+  if (!jwtSecret) {
+    throw new Error('FATAL: JWT_SECRET environment variable is missing! Please configure it in your .env file.');
+  }
+
   // Read frontend URL and port from environment (with default fallbacks)
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-  const port = process.env.PORT || 3000;
+  const frontendUrl = configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+  const port = configService.get<number>('PORT') || 3000;
 
   // Enable CORS for FRONTEND_URL
   app.enableCors({
@@ -30,4 +38,3 @@ async function bootstrap() {
 }
 
 bootstrap();
-
