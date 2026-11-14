@@ -1,0 +1,138 @@
+// Prisma Schema for PlaceSync (Campus Placement Portal)
+// Database: PostgreSQL (hosted on Neon)
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum Role {
+  STUDENT
+  CELL
+}
+
+enum DriveStatus {
+  OPEN
+  CLOSED
+  COMPLETED
+}
+
+enum ApplicationStatus {
+  APPLIED
+  SHORTLISTED
+  INTERVIEW
+  SELECTED
+  REJECTED
+}
+
+// ==========================================
+// MODELS
+// ==========================================
+
+// Core User account model for both Students and Placement Cell members
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(STUDENT)
+  createdAt    DateTime @default(now())
+
+  // 1-to-1: A user with role STUDENT has one student profile
+  studentProfile StudentProfile?
+
+  // 1-to-many: Drives posted by a placement cell user
+  drives Drive[]
+
+  // 1-to-many: Applications submitted by a student
+  applications Application[]
+
+  // 1-to-many: Notifications received by the user
+  notifications Notification[]
+}
+
+// Profile details for students (academics, skills, resume)
+model StudentProfile {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  rollNo         String   @unique
+  branch         String
+  cgpa           Float
+  activeBacklogs Int      @default(0)
+  graduationYear Int
+  skills         String[]
+  resumeUrl      String?
+  phone          String?
+
+  // Relation back to User; deleted automatically if user is removed
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Placement drives posted by the placement cell
+model Drive {
+  id              Int         @id @default(autoincrement())
+  companyName     String
+  role            String
+  description     String
+  packageLpa      Float
+  location        String?
+  requiredSkills  String[]
+  minCgpa         Float       @default(0)
+  allowedBranches String[]
+  maxBacklogs     Int         @default(0)
+  graduationYear  Int
+  deadline        DateTime
+  status          DriveStatus @default(OPEN)
+  createdById     Int
+  createdAt       DateTime    @default(now())
+
+  // Creator relation (Placement Cell user)
+  createdBy User @relation(fields: [createdById], references: [id])
+
+  // Applications submitted for this drive
+  applications Application[]
+}
+
+// Job application submitted by a student for a specific drive
+model Application {
+  id         Int               @id @default(autoincrement())
+  studentId  Int
+  driveId    Int
+  status     ApplicationStatus @default(APPLIED)
+  matchScore Int?
+  appliedAt  DateTime          @default(now())
+
+  // Relations to Student (User) and Drive
+  student User  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  drive   Drive @relation(fields: [driveId], references: [id], onDelete: Cascade)
+
+  // A student can apply to a specific drive only once
+  @@unique([studentId, driveId])
+  // Fast filtering of drive applicants by status in placement cell dashboard
+  @@index([driveId, status])
+}
+
+// In-app notifications for students and placement cell
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relation to User
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Fast retrieval of unread notifications for a user
+  @@index([userId, isRead])
+}
+
