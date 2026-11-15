@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
+import { ApplicationsModule } from './applications/applications.module';
 import { AuthModule } from './auth/auth.module';
 import { DrivesModule } from './drives/drives.module';
 import { EligibilityModule } from './eligibility/eligibility.module';
@@ -27,6 +28,8 @@ import { UsersModule } from './users/users.module';
     EligibilityModule,
     // Placement drives module
     DrivesModule,
+    // Applications module
+    ApplicationsModule,
   ],
   controllers: [AppController, TestAccessController],
   providers: [],
