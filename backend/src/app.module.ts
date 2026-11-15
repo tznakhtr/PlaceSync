@@ -17,6 +17,7 @@ import { UsersModule } from './users/users.module';
     // Global configuration module to load environment variables from .env
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env', '.env.example'],
     }),
     // Global Prisma module for database access across all services
     PrismaModule,
