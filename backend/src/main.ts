@@ -13,6 +13,16 @@ async function bootstrap() {
     throw new Error('FATAL: JWT_SECRET environment variable is missing! Please configure it in your .env file.');
   }
 
+  // Validate that Cloudinary config is defined; if missing, throw clear error and stop
+  const cloudinaryCloudName = configService.get<string>('CLOUDINARY_CLOUD_NAME');
+  const cloudinaryApiKey = configService.get<string>('CLOUDINARY_API_KEY');
+  const cloudinaryApiSecret = configService.get<string>('CLOUDINARY_API_SECRET');
+  if (!cloudinaryCloudName || !cloudinaryApiKey || !cloudinaryApiSecret) {
+    throw new Error(
+      'FATAL: Missing Cloudinary configuration (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET). Please configure them in your .env file.',
+    );
+  }
+
   // Read frontend URL and port from environment (with default fallbacks)
   const frontendUrl = configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
   const port = configService.get<number>('PORT') || 3000;

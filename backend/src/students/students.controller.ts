@@ -1,6 +1,21 @@
-import { Body, Controller, Get, Put, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Request,
+  UploadedFile,
+  UseFilters,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Role } from '@prisma/client';
+import * as multer from 'multer';
 import { Roles } from '../common/decorators/roles.decorator';
+import { MulterExceptionFilter } from '../common/filters/multer-exception.filter';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { UpdateStudentProfileDto } from './dto/update-student-profile.dto';
@@ -16,7 +31,7 @@ interface RequestWithUser extends Request {
 }
 
 /**
- * Controller for student profile management.
+ * Controller for student profile and resume management.
  * Protected by JwtAuthGuard and RolesGuard.
  */
 @Controller('students')
@@ -44,6 +59,39 @@ export class StudentsController {
   @Roles(Role.STUDENT)
   async updateProfile(@Request() req: RequestWithUser, @Body() dto: UpdateStudentProfileDto) {
     return this.studentsService.upsertProfile(req.user.id, dto);
+  }
+
+  /**
+   * POST /students/me/resume
+   * Uploads student resume PDF into Cloudinary using in-memory storage.
+   * Strict 2 MB limit; rejects non-PDFs and uncompleted profiles.
+   */
+  @Post('me/resume')
+  @Roles(Role.STUDENT)
+  @UseFilters(MulterExceptionFilter)
+  @UseInterceptors(
+    FileInterceptor('resume', {
+      storage: multer.memoryStorage(),
+      limits: {
+        fileSize: 2 * 1024 * 1024, // 2 MB maximum
+      },
+    }),
+  )
+  async uploadResume(
+    @Request() req: RequestWithUser,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.studentsService.uploadResume(req.user.id, file);
+  }
+
+  /**
+   * DELETE /students/me/resume
+   * Deletes student resume from Cloudinary and clears profile fields.
+   */
+  @Delete('me/resume')
+  @Roles(Role.STUDENT)
+  async deleteResume(@Request() req: RequestWithUser) {
+    return this.studentsService.deleteResume(req.user.id);
   }
 
   /**

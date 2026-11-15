@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { ApplicationsModule } from './applications/applications.module';
 import { AuthModule } from './auth/auth.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { DrivesModule } from './drives/drives.module';
 import { EligibilityModule } from './eligibility/eligibility.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -33,6 +34,8 @@ import { UsersModule } from './users/users.module';
     ApplicationsModule,
     // In-app notifications module
     NotificationsModule,
+    // Cloudinary file upload module
+    CloudinaryModule,
   ],
   controllers: [AppController, TestAccessController],
   providers: [],
