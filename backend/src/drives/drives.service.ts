@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { DriveStatus, Prisma } from '@prisma/client';
+import { EligibilityService } from '../eligibility/eligibility.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateDriveDto } from './dto/create-drive.dto';
 import { QueryDrivesDto } from './dto/query-drives.dto';
@@ -17,7 +18,10 @@ import { UpdateDriveDto } from './dto/update-drive.dto';
  */
 @Injectable()
 export class DrivesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eligibilityService: EligibilityService,
+  ) {}
 
   /**
    * Create a new placement drive.
@@ -54,20 +58,55 @@ export class DrivesService {
 
   /**
    * Retrieve a paginated list of drives sorted by deadline ascending (soonest first).
-   * Supports optional status filtering and case-insensitive search across companyName and role.
-   * CELL users receive applicationsCount for each drive.
+   * - For STUDENT: evaluates eligibility via EligibilityService, supports ?eligibleOnly=true filter.
+   * - For CELL: includes applicationsCount; does NOT include eligibility.
    */
-  async findAll(query: QueryDrivesDto, isCell: boolean) {
+  async findAll(query: QueryDrivesDto, userId: number, isCell: boolean) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
     const skip = (page - 1) * limit;
 
     const where: Prisma.DriveWhereInput = {};
 
-    if (query.status) {
+    // For STUDENT users, load the student profile once for eligibility checks
+    let studentProfile: Awaited<ReturnType<typeof this.prisma.studentProfile.findUnique>> = null;
+
+    if (!isCell) {
+      studentProfile = await this.prisma.studentProfile.findUnique({
+        where: { userId },
+      });
+
+      // If ?eligibleOnly=true is requested by a STUDENT
+      if (query.eligibleOnly) {
+        // If student has no profile, no drives can be eligible
+        if (!studentProfile) {
+          return {
+            data: [],
+            meta: {
+              total: 0,
+              page,
+              limit,
+              totalPages: 0,
+            },
+          };
+        }
+
+        // Apply Prisma filters matching the exact eligibility criteria to ensure accurate pagination
+        where.status = DriveStatus.OPEN;
+        where.deadline = { gt: new Date() };
+        where.minCgpa = { lte: studentProfile.cgpa };
+        where.maxBacklogs = { gte: studentProfile.activeBacklogs };
+        where.graduationYear = studentProfile.graduationYear;
+        where.allowedBranches = { has: studentProfile.branch };
+      }
+    }
+
+    // Apply explicit status filter if provided (and not already overridden by eligibleOnly)
+    if (query.status && !where.status) {
       where.status = query.status;
     }
 
+    // Case-insensitive search on companyName or role
     if (query.search) {
       where.OR = [
         { companyName: { contains: query.search, mode: 'insensitive' } },
@@ -94,9 +133,11 @@ export class DrivesService {
       }),
     ]);
 
-    const totalPages = Math.ceil(total / limit) || 1;
+    const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
 
-    // For CELL users, format _count to applicationsCount; for STUDENT users, omit application counts
+    // Format responses based on role:
+    // CELL users get applicationsCount (no eligibility)
+    // STUDENT users get eligibility object (no applicationsCount)
     const data = drives.map((drive) => {
       if (isCell) {
         const { _count, ...rest } = drive as typeof drive & { _count?: { applications: number } };
@@ -105,7 +146,13 @@ export class DrivesService {
           applicationsCount: _count?.applications ?? 0,
         };
       }
-      return drive;
+
+      // Single source of truth for reasons evaluated on each drive
+      const eligibility = this.eligibilityService.checkEligibility(studentProfile, drive);
+      return {
+        ...drive,
+        eligibility,
+      };
     });
 
     return {
@@ -122,9 +169,10 @@ export class DrivesService {
   /**
    * Retrieve a single drive by ID.
    * Throws 404 if not found.
-   * CELL users receive applicationsCount.
+   * - CELL users receive applicationsCount.
+   * - STUDENT users receive eligibility.
    */
-  async findOne(id: number, isCell: boolean) {
+  async findOne(id: number, userId: number, isCell: boolean) {
     const drive = await this.prisma.drive.findUnique({
       where: { id },
       include: {
@@ -150,7 +198,16 @@ export class DrivesService {
       };
     }
 
-    return drive;
+    // For STUDENT users, evaluate eligibility against the student's profile
+    const studentProfile = await this.prisma.studentProfile.findUnique({
+      where: { userId },
+    });
+    const eligibility = this.eligibilityService.checkEligibility(studentProfile, drive);
+
+    return {
+      ...drive,
+      eligibility,
+    };
   }
 
   /**

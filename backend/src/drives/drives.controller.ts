@@ -54,14 +54,15 @@ export class DrivesController {
 
   /**
    * GET /drives
-   * Paginated listing of placement drives with optional status and search filters.
+   * Paginated listing of placement drives with optional status, search, and eligibleOnly filters.
    * Accessible by both STUDENT and CELL.
-   * CELL users receive applicationsCount for each drive.
+   * CELL users receive applicationsCount for each drive (no eligibility).
+   * STUDENT users receive eligibility evaluation for each drive.
    */
   @Get()
   async findAll(@Request() req: RequestWithUser, @Query() query: QueryDrivesDto) {
     const isCell = req.user.role === Role.CELL;
-    return this.drivesService.findAll(query, isCell);
+    return this.drivesService.findAll(query, req.user.id, isCell);
   }
 
   /**
@@ -69,11 +70,12 @@ export class DrivesController {
    * Get single drive details by ID.
    * Accessible by both STUDENT and CELL.
    * CELL users receive applicationsCount.
+   * STUDENT users receive eligibility evaluation.
    */
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number, @Request() req: RequestWithUser) {
     const isCell = req.user.role === Role.CELL;
-    return this.drivesService.findOne(id, isCell);
+    return this.drivesService.findOne(id, req.user.id, isCell);
   }
 
   /**

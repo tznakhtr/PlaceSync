@@ -1,6 +1,6 @@
 import { DriveStatus } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 /**
  * Data Transfer Object for querying and paginating drives.
@@ -29,4 +29,9 @@ export class QueryDrivesDto {
   @Min(1, { message: 'Limit must be at least 1' })
   @Max(50, { message: 'Limit cannot exceed 50' })
   limit?: number = 10;
+
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) => value === 'true' || value === true)
+  @IsBoolean({ message: 'eligibleOnly must be a boolean' })
+  eligibleOnly?: boolean;
 }
