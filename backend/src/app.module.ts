@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { StudentsModule } from './students/students.module';
 import { TestAccessController } from './test-access/test-access.controller';
 import { UsersModule } from './users/users.module';
 
@@ -18,6 +19,8 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     // Authentication module
     AuthModule,
+    // Students module
+    StudentsModule,
   ],
   controllers: [AppController, TestAccessController],
   providers: [],
