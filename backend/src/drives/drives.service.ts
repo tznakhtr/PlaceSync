@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { DriveStatus, Prisma } from '@prisma/client';
 import { EligibilityService } from '../eligibility/eligibility.service';
+import { NotificationType } from '../notifications/notification-type';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateDriveDto } from './dto/create-drive.dto';
 import { QueryDrivesDto } from './dto/query-drives.dto';
@@ -21,15 +23,17 @@ export class DrivesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly eligibilityService: EligibilityService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   /**
    * Create a new placement drive.
    * New drives always start with status OPEN.
    * createdById is set strictly from the authenticated CELL user.
+   * Triggers in-app notification to all eligible students.
    */
   async create(userId: number, dto: CreateDriveDto) {
-    return this.prisma.drive.create({
+    const drive = await this.prisma.drive.create({
       data: {
         companyName: dto.companyName,
         role: dto.role,
@@ -54,6 +58,25 @@ export class DrivesService {
         },
       },
     });
+
+    // Notify all eligible students about the new drive
+    const studentProfiles = await this.prisma.studentProfile.findMany();
+    const eligibleStudentUserIds = studentProfiles
+      .filter((profile) => this.eligibilityService.checkEligibility(profile, drive).eligible)
+      .map((profile) => profile.userId);
+
+    if (eligibleStudentUserIds.length > 0) {
+      const deadlineDate = new Date(drive.deadline).toISOString().split('T')[0];
+      const message = `New drive: ${drive.companyName} - ${drive.role}. Apply before ${deadlineDate}.`;
+      await this.notificationsService.createManyFor(
+        eligibleStudentUserIds,
+        NotificationType.NEW_DRIVE,
+        message,
+        drive.id,
+      );
+    }
+
+    return drive;
   }
 
   /**

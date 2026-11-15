@@ -126,6 +126,7 @@ model Notification {
   userId    Int
   message   String
   type      String
+  driveId   Int?
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 

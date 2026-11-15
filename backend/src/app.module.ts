@@ -5,6 +5,7 @@ import { ApplicationsModule } from './applications/applications.module';
 import { AuthModule } from './auth/auth.module';
 import { DrivesModule } from './drives/drives.module';
 import { EligibilityModule } from './eligibility/eligibility.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { StudentsModule } from './students/students.module';
 import { TestAccessController } from './test-access/test-access.controller';
@@ -30,6 +31,8 @@ import { UsersModule } from './users/users.module';
     DrivesModule,
     // Applications module
     ApplicationsModule,
+    // In-app notifications module
+    NotificationsModule,
   ],
   controllers: [AppController, TestAccessController],
   providers: [],
