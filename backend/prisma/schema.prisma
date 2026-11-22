@@ -70,6 +70,7 @@ model StudentProfile {
   graduationYear Int
   skills         String[]
   resumeUrl      String?
+  resumePublicId String?
   phone          String?
 
   // Relation back to User; deleted automatically if user is removed
@@ -126,6 +127,7 @@ model Notification {
   userId    Int
   message   String
   type      String
+  driveId   Int?
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
