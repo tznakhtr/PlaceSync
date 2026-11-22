@@ -10,7 +10,12 @@ import { PrismaClient } from '@prisma/client';
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     // Establish connection to PostgreSQL database on startup
-    await this.$connect();
+    try {
+      await this.$connect();
+      console.log('[PrismaService] Connected to PostgreSQL database successfully.');
+    } catch (err: unknown) {
+      console.warn('[PrismaService] Warning: Could not connect to database on startup. Will reconnect on query:', err);
+    }
   }
 
   async onModuleDestroy() {
