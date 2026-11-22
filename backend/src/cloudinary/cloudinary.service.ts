@@ -36,12 +36,12 @@ export class CloudinaryService implements OnModuleInit {
 
   /**
    * Upload a PDF file buffer to Cloudinary.
-   * Uploads into the folder "placesync/resumes" with a unique, non-guessable publicId.
-   * Returns { url, publicId } with secure HTTPS URL.
+   * Uploads into the folder "placesync/resumes" with a unique, non-guessable publicId ending in .pdf.
+   * Returns { url, publicId } with secure HTTPS URL ending in .pdf and the full publicId.
    */
   async uploadPdf(buffer: Buffer, userId: number): Promise<UploadPdfResult> {
     const randomHex = randomBytes(16).toString('hex');
-    const publicId = `placesync/resumes/resume_${userId}_${randomHex}`;
+    const publicId = `placesync/resumes/resume_${userId}_${randomHex}.pdf`;
 
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
@@ -56,19 +56,27 @@ export class CloudinaryService implements OnModuleInit {
           if (!result) {
             return reject(new Error('Cloudinary upload returned empty response'));
           }
+
+          const rawUrl = result.secure_url || result.url;
+          const url = rawUrl.endsWith('.pdf') ? rawUrl : `${rawUrl}.pdf`;
+          const resolvedPublicId = result.public_id?.endsWith('.pdf')
+            ? result.public_id
+            : `${result.public_id || publicId}.pdf`;
+
           resolve({
-            url: result.secure_url,
-            publicId: result.public_id,
+            url,
+            publicId: resolvedPublicId,
           });
         },
       );
 
+      // Stream the binary buffer unchanged to avoid text encoding or base64 conversion corruption
       uploadStream.end(buffer);
     });
   }
 
   /**
-   * Delete a PDF from Cloudinary by its publicId.
+   * Delete a PDF from Cloudinary by its full publicId.
    */
   async deletePdf(publicId: string): Promise<any> {
     return new Promise((resolve, reject) => {

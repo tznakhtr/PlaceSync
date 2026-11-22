@@ -25,13 +25,7 @@ export function getErrorMessage(
       }
     }
 
-    // Handle Network / Connection errors (e.g. backend server not running or connection refused)
-    if (
-      axiosError.message === 'Network Error' ||
-      axiosError.code === 'ERR_NETWORK' ||
-      axiosError.code === 'ECONNREFUSED' ||
-      (axiosError.isAxiosError && !axiosError.response)
-    ) {
+    if (axiosError.message === 'Network Error' || axiosError.code === 'ERR_NETWORK') {
       return 'Cannot reach the backend server (http://localhost:3000). Please ensure the backend is running.';
     }
 

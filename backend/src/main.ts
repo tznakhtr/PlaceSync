@@ -28,8 +28,27 @@ async function bootstrap() {
   const port = configService.get<number>('PORT') || 3000;
 
   // Enable CORS for FRONTEND_URL and local development origins
+  const allowedOrigins = [
+    frontendUrl,
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+  ];
+
   app.enableCors({
-    origin: true, // Allow all origins during development and reflect origin
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, or Postman)
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        /^http:\/\/localhost:\d+$/.test(origin) ||
+        /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
@@ -43,9 +62,9 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(port, '0.0.0.0');
-  console.log(`[PlaceSync] Backend server is listening on port ${port} (0.0.0.0)`);
-  console.log(`[PlaceSync] CORS enabled for development origins`);
+  await app.listen(port);
+  console.log(`[PlaceSync] Backend server is listening on port ${port}`);
+  console.log(`[PlaceSync] CORS allowed origin: ${frontendUrl}`);
   console.log(`[PlaceSync] Health check available at: http://localhost:${port}/health`);
 }
 

@@ -14,7 +14,7 @@ import { NotFoundPage } from '../pages/NotFoundPage';
 import { StudentApplicationsPage } from '../pages/student/StudentApplicationsPage';
 import { StudentDashboard } from '../pages/student/StudentDashboard';
 import { StudentDrivesPage } from '../pages/student/StudentDrivesPage';
-import { StudentProfilePage } from '../pages/student/StudentProfilePage';
+import { ProfilePage } from '../pages/student/ProfilePage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PublicOnlyRoute } from './PublicOnlyRoute';
 
@@ -50,7 +50,7 @@ export const AppRoutes: React.FC = () => {
       <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
         <Route element={<StudentLayout />}>
           <Route path="/student" element={<StudentDashboard />} />
-          <Route path="/student/profile" element={<StudentProfilePage />} />
+          <Route path="/student/profile" element={<ProfilePage />} />
           <Route path="/student/drives" element={<StudentDrivesPage />} />
           <Route path="/student/applications" element={<StudentApplicationsPage />} />
         </Route>

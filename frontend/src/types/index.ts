@@ -42,3 +42,5 @@ export interface RegisterResponse {
   email: string;
   role: Role;
 }
+
+export * from './student';

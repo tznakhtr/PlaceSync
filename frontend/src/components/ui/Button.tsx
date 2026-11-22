@@ -2,7 +2,7 @@ import React from 'react';
 import { Spinner } from './Spinner';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'success' | 'secondary';
+  variant?: 'primary' | 'success' | 'secondary' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   fullWidth?: boolean;
@@ -17,6 +17,8 @@ const variantClasses = {
     'bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50',
   secondary:
     'bg-surface border border-grey-200 text-navy-700 hover:bg-grey-50 hover:border-grey-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-700/20',
+  danger:
+    'bg-danger hover:opacity-90 text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/50',
 };
 
 const sizeClasses = {
@@ -59,7 +61,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {isLoading ? (
           <>
-            <Spinner size={size === 'sm' ? 'sm' : 'sm'} variant={variant === 'secondary' ? 'navy' : 'white'} />
+            <Spinner size="sm" variant={variant === 'secondary' ? 'navy' : 'white'} />
             <span>{children}</span>
           </>
         ) : (
