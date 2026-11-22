@@ -25,6 +25,10 @@ export function getErrorMessage(
       }
     }
 
+    if (axiosError.message === 'Network Error' || axiosError.code === 'ERR_NETWORK') {
+      return 'Cannot reach the backend server (http://localhost:3000). Please ensure the backend is running.';
+    }
+
     if ('message' in error && typeof (error as { message: unknown }).message === 'string') {
       return (error as { message: string }).message;
     }
