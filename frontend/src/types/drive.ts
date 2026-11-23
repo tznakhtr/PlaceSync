@@ -28,6 +28,20 @@ export interface Drive {
   applicationsCount?: number;
 }
 
+export interface DrivePayload {
+  companyName: string;
+  role: string;
+  description: string;
+  packageLpa: number;
+  location?: string;
+  requiredSkills: string[];
+  minCgpa: number;
+  allowedBranches: string[];
+  maxBacklogs: number;
+  graduationYear: number;
+  deadline: string;
+}
+
 export interface DriveQueryParams {
   status?: DriveStatus;
   search?: string;

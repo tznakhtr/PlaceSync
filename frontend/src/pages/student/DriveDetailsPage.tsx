@@ -334,7 +334,7 @@ export const DriveDetailsPage: React.FC = () => {
         {/* Right 1 Column: Eligibility Panel & Apply Slot */}
         <div className="space-y-6">
           <EligibilityPanel
-            eligibility={drive.eligibility}
+            drive={drive}
             isProfileComplete={isProfileComplete}
           />
         </div>

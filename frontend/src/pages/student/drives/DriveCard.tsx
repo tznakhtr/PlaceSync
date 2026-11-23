@@ -1,10 +1,12 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ChevronRight, MapPin } from 'lucide-react';
+import { Check, ChevronRight, MapPin } from 'lucide-react';
 import { Card } from '../../../components/ui/Card';
 import { DeadlineLabel } from '../../../components/ui/DeadlineLabel';
 import { DriveStatusBadge } from '../../../components/ui/DriveStatusBadge';
 import { EligibilityBadge } from '../../../components/ui/EligibilityBadge';
+import { StatusBadge } from '../../../components/ui/StatusBadge';
+import { useMyApplications } from '../../../hooks/useMyApplications';
 import { formatLpa, getDeadlineInfo } from '../../../utils/format';
 import type { Drive } from '../../../types/drive';
 
@@ -16,12 +18,17 @@ export interface DriveCardProps {
  * Drive card for responsive student drive grid.
  * - Entire card is clickable
  * - Shows company name, role, package, location, DriveStatusBadge, DeadlineLabel, EligibilityBadge
+ * - If student applied, shows "Applied" chip and replaces eligibility badge with application StatusBadge
  * - If not eligible, shows FIRST reason in small text with "+N more" when multiple
  * - Muted styling when status is not OPEN or deadline has passed
  */
 export const DriveCard: React.FC<DriveCardProps> = ({ drive }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { getApplicationForDrive } = useMyApplications();
+  const existingApplication = getApplicationForDrive(drive.id);
+  const hasApplied = Boolean(existingApplication);
 
   const deadlineInfo = getDeadlineInfo(drive.deadline);
   const isMuted = drive.status !== 'OPEN' || deadlineInfo.isPast;
@@ -44,17 +51,25 @@ export const DriveCard: React.FC<DriveCardProps> = ({ drive }) => {
       }`}
     >
       <div className="space-y-3.5">
-        {/* Top Header: Company name, Role, DriveStatusBadge */}
+        {/* Top Header: Company name, Applied chip, Role, DriveStatusBadge */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <h3
-              className={`font-bold text-base tracking-tight truncate group-hover:text-navy-700 transition-colors ${
-                isMuted ? 'text-grey-700' : 'text-navy-900'
-              }`}
-              title={drive.companyName}
-            >
-              {drive.companyName}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3
+                className={`font-bold text-base tracking-tight truncate group-hover:text-navy-700 transition-colors ${
+                  isMuted ? 'text-grey-700' : 'text-navy-900'
+                }`}
+                title={drive.companyName}
+              >
+                {drive.companyName}
+              </h3>
+              {hasApplied && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-navy-100 text-navy-700 border border-navy-100 shrink-0">
+                  <Check className="w-3 h-3 text-navy-700" />
+                  <span>Applied</span>
+                </span>
+              )}
+            </div>
             <p
               className={`text-xs font-medium truncate mt-0.5 ${
                 isMuted ? 'text-grey-500' : 'text-grey-600'
@@ -80,16 +95,20 @@ export const DriveCard: React.FC<DriveCardProps> = ({ drive }) => {
           )}
         </div>
 
-        {/* Deadline & Eligibility Badges */}
+        {/* Deadline & Eligibility / Status Badges */}
         <div className="pt-2 border-t border-grey-200/60 flex items-center justify-between gap-2">
           <DeadlineLabel deadline={drive.deadline} />
-          {drive.eligibility !== undefined && (
-            <EligibilityBadge eligible={isEligible} />
+          {hasApplied && existingApplication ? (
+            <StatusBadge status={existingApplication.status} />
+          ) : (
+            drive.eligibility !== undefined && (
+              <EligibilityBadge eligible={isEligible} />
+            )
           )}
         </div>
 
-        {/* Ineligibility Reason Preview: First reason + count */}
-        {!isEligible && reasons.length > 0 && (
+        {/* Ineligibility Reason Preview: First reason + count (only if not applied) */}
+        {!hasApplied && !isEligible && reasons.length > 0 && (
           <div className="text-[11px] text-danger font-medium leading-tight flex items-center gap-1 mt-1">
             <span className="truncate" title={reasons[0]}>
               {reasons[0]}

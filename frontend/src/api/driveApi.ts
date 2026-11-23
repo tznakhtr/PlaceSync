@@ -1,5 +1,6 @@
 import apiClient from './axios';
-import type { Drive, DriveListResponse, DriveQueryParams } from '../types/drive';
+import { getBranches as getStudentBranches } from './studentApi';
+import type { Drive, DriveListResponse, DrivePayload, DriveQueryParams } from '../types/drive';
 
 /**
  * Fetch paginated list of placement drives with optional status, search, and eligibleOnly filters.
@@ -38,3 +39,47 @@ export const getDrive = async (id: number): Promise<Drive> => {
   const response = await apiClient.get<Drive>(`/drives/${id}`);
   return response.data;
 };
+
+/**
+ * Create a new placement drive (Placement Cell only).
+ * POST /drives
+ */
+export const createDrive = async (payload: DrivePayload): Promise<Drive> => {
+  const response = await apiClient.post<Drive>('/drives', payload);
+  return response.data;
+};
+
+/**
+ * Update an existing placement drive (Placement Cell only).
+ * PUT /drives/:id
+ */
+export const updateDrive = async (id: number, payload: DrivePayload): Promise<Drive> => {
+  const response = await apiClient.put<Drive>(`/drives/${id}`, payload);
+  return response.data;
+};
+
+/**
+ * Update the status of a placement drive between OPEN and CLOSED (Placement Cell only).
+ * PATCH /drives/:id/status
+ */
+export const updateDriveStatus = async (
+  id: number,
+  status: 'OPEN' | 'CLOSED',
+): Promise<Drive> => {
+  const response = await apiClient.patch<Drive>(`/drives/${id}/status`, { status });
+  return response.data;
+};
+
+/**
+ * Delete a placement drive (Placement Cell only).
+ * Throws 409 if applications exist.
+ * DELETE /drives/:id
+ */
+export const deleteDrive = async (id: number): Promise<void> => {
+  await apiClient.delete(`/drives/${id}`);
+};
+
+/**
+ * Re-export getBranches for Placement Cell forms.
+ */
+export const getBranches = getStudentBranches;

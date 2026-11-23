@@ -81,3 +81,50 @@ export function getDeadlineInfo(iso: string | Date): DeadlineInfo {
     isSoon: false,
   };
 }
+
+/**
+ * Convert an ISO string or Date to format required by <input type="datetime-local" /> in local time.
+ * Returns format: "YYYY-MM-DDTHH:mm"
+ */
+export function toLocalInputValue(iso: string | Date): string {
+  const d = typeof iso === 'string' ? new Date(iso) : iso;
+  if (isNaN(d.getTime())) return '';
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  const year = d.getFullYear();
+  const month = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  const hours = pad(d.getHours());
+  const minutes = pad(d.getMinutes());
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+/**
+ * Build a human-readable eligibility preview sentence from form values.
+ * e.g. "CSE and IT students of the 2028 batch with CGPA 7.5 or above and at most 0 active backlogs."
+ */
+export function describeEligibility(values: {
+  allowedBranches?: string[];
+  graduationYear?: number;
+  minCgpa?: number;
+  maxBacklogs?: number;
+}): string {
+  const branches = values.allowedBranches && values.allowedBranches.length > 0 ? (
+    values.allowedBranches.length === 1
+      ? `${values.allowedBranches[0]} students`
+      : values.allowedBranches.length === 2
+      ? `${values.allowedBranches[0]} and ${values.allowedBranches[1]} students`
+      : `${values.allowedBranches.slice(0, -1).join(', ')}, and ${values.allowedBranches[values.allowedBranches.length - 1]} students`
+  ) : 'Students of all allowed branches';
+
+  const batch = values.graduationYear ? ` of the ${values.graduationYear} batch` : '';
+  const cgpa =
+    typeof values.minCgpa === 'number' && values.minCgpa > 0
+      ? ` with CGPA ${values.minCgpa.toFixed(2).replace(/\.?0+$/, '')} or above`
+      : ' with any CGPA';
+  const backlogs =
+    typeof values.maxBacklogs === 'number'
+      ? ` and at most ${values.maxBacklogs} active ${values.maxBacklogs === 1 ? 'backlog' : 'backlogs'}.`
+      : '.';
+
+  return `${branches}${batch}${cgpa}${backlogs}`;
+}

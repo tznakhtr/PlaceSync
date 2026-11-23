@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AlertCircle, CheckCircle2, ChevronRight, UserCheck, XCircle } from 'lucide-react';
-import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
-import type { Eligibility } from '../../../types/drive';
+import { ApplyAction } from './ApplyAction';
+import type { Drive } from '../../../types/drive';
 
 export interface EligibilityPanelProps {
-  eligibility?: Eligibility;
+  drive: Drive;
   isProfileComplete?: boolean;
 }
 
@@ -16,12 +16,13 @@ export interface EligibilityPanelProps {
  * - Eligible: Emerald card
  * - Not Eligible: Warning/danger card listing every failure reason
  * - Includes link to /student/profile if incomplete
- * - Displays clearly marked placeholder slot: <div data-slot="apply-action"> with disabled "Apply (coming next)"
+ * - Displays clearly marked apply-action slot: <div data-slot="apply-action">
  */
 export const EligibilityPanel: React.FC<EligibilityPanelProps> = ({
-  eligibility,
+  drive,
   isProfileComplete = true,
 }) => {
+  const eligibility = drive.eligibility;
   const isEligible = eligibility?.eligible ?? false;
   const reasons = eligibility?.reasons ?? [];
 
@@ -91,20 +92,9 @@ export const EligibilityPanel: React.FC<EligibilityPanelProps> = ({
         </div>
       )}
 
-      {/* Mandatory Apply Placeholder Slot for next task */}
-      <div data-slot="apply-action" className="mt-5 pt-4 border-t border-grey-200 flex items-center justify-between">
-        <span className="text-xs text-grey-500">
-          {isEligible ? 'Applications will open in the next phase' : 'You do not meet application requirements'}
-        </span>
-        <Button
-          type="button"
-          variant="primary"
-          size="md"
-          disabled
-          className="opacity-60 cursor-not-allowed"
-        >
-          Apply (coming next)
-        </Button>
+      {/* Apply Action Slot */}
+      <div data-slot="apply-action" className="mt-5 pt-4 border-t border-grey-200">
+        <ApplyAction drive={drive} />
       </div>
     </Card>
   );
