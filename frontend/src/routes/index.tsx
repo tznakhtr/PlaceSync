@@ -9,12 +9,15 @@ import { RegisterPage } from '../pages/auth/RegisterPage';
 import { CellApplicantsPage } from '../pages/cell/CellApplicantsPage';
 import { CellDashboard } from '../pages/cell/CellDashboard';
 import { CellDrivesPage } from '../pages/cell/CellDrivesPage';
+import { CreateDrivePage } from '../pages/cell/CreateDrivePage';
+import { EditDrivePage } from '../pages/cell/EditDrivePage';
 import { CellResultsPage } from '../pages/cell/CellResultsPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
-import { StudentApplicationsPage } from '../pages/student/StudentApplicationsPage';
+import { ApplicationsPage } from '../pages/student/ApplicationsPage';
 import { StudentDashboard } from '../pages/student/StudentDashboard';
-import { StudentDrivesPage } from '../pages/student/StudentDrivesPage';
-import { StudentProfilePage } from '../pages/student/StudentProfilePage';
+import { DrivesPage } from '../pages/student/DrivesPage';
+import { DriveDetailsPage } from '../pages/student/DriveDetailsPage';
+import { ProfilePage } from '../pages/student/ProfilePage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PublicOnlyRoute } from './PublicOnlyRoute';
 
@@ -50,9 +53,10 @@ export const AppRoutes: React.FC = () => {
       <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
         <Route element={<StudentLayout />}>
           <Route path="/student" element={<StudentDashboard />} />
-          <Route path="/student/profile" element={<StudentProfilePage />} />
-          <Route path="/student/drives" element={<StudentDrivesPage />} />
-          <Route path="/student/applications" element={<StudentApplicationsPage />} />
+          <Route path="/student/profile" element={<ProfilePage />} />
+          <Route path="/student/drives" element={<DrivesPage />} />
+          <Route path="/student/drives/:id" element={<DriveDetailsPage />} />
+          <Route path="/student/applications" element={<ApplicationsPage />} />
         </Route>
       </Route>
 
@@ -61,6 +65,8 @@ export const AppRoutes: React.FC = () => {
         <Route element={<CellLayout />}>
           <Route path="/cell" element={<CellDashboard />} />
           <Route path="/cell/drives" element={<CellDrivesPage />} />
+          <Route path="/cell/drives/new" element={<CreateDrivePage />} />
+          <Route path="/cell/drives/:id/edit" element={<EditDrivePage />} />
           <Route path="/cell/applicants" element={<CellApplicantsPage />} />
           <Route path="/cell/results" element={<CellResultsPage />} />
         </Route>

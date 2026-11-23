@@ -63,7 +63,7 @@ describe('StudentsService - Profile & Resume Upload', () => {
     skills: ['typescript', 'react'],
     phone: '9876543210',
     resumeUrl: 'https://res.cloudinary.com/demo/raw/upload/v1/old_resume.pdf',
-    resumePublicId: 'placesync/resumes/resume_10_oldpublicid',
+    resumePublicId: 'placesync/resumes/resume_10_oldpublicid.pdf',
   };
 
   // =========================================================================
@@ -74,12 +74,12 @@ describe('StudentsService - Profile & Resume Upload', () => {
       mockPrismaService.studentProfile.findUnique.mockResolvedValue(sampleProfile);
       mockCloudinaryService.uploadPdf.mockResolvedValue({
         url: 'https://res.cloudinary.com/demo/raw/upload/v2/new_resume.pdf',
-        publicId: 'placesync/resumes/resume_10_newpublicid',
+        publicId: 'placesync/resumes/resume_10_newpublicid.pdf',
       });
       mockPrismaService.studentProfile.update.mockResolvedValue({
         ...sampleProfile,
         resumeUrl: 'https://res.cloudinary.com/demo/raw/upload/v2/new_resume.pdf',
-        resumePublicId: 'placesync/resumes/resume_10_newpublicid',
+        resumePublicId: 'placesync/resumes/resume_10_newpublicid.pdf',
       });
       mockCloudinaryService.deletePdf.mockResolvedValue({ result: 'ok' });
 
@@ -93,13 +93,13 @@ describe('StudentsService - Profile & Resume Upload', () => {
         where: { userId: 10 },
         data: {
           resumeUrl: 'https://res.cloudinary.com/demo/raw/upload/v2/new_resume.pdf',
-          resumePublicId: 'placesync/resumes/resume_10_newpublicid',
+          resumePublicId: 'placesync/resumes/resume_10_newpublicid.pdf',
         },
       });
 
       // Old resume was deleted from Cloudinary
       expect(mockCloudinaryService.deletePdf).toHaveBeenCalledWith(
-        'placesync/resumes/resume_10_oldpublicid',
+        'placesync/resumes/resume_10_oldpublicid.pdf',
       );
 
       // Returns strictly { resumeUrl } without exposing resumePublicId
@@ -164,7 +164,7 @@ describe('StudentsService - Profile & Resume Upload', () => {
       mockPrismaService.studentProfile.findUnique.mockResolvedValue(sampleProfile);
       mockCloudinaryService.uploadPdf.mockResolvedValue({
         url: 'https://res.cloudinary.com/demo/raw/upload/v2/new_resume.pdf',
-        publicId: 'placesync/resumes/resume_10_newpublicid',
+        publicId: 'placesync/resumes/resume_10_newpublicid.pdf',
       });
       mockPrismaService.studentProfile.update.mockRejectedValue(new Error('DB failure'));
 
@@ -172,11 +172,11 @@ describe('StudentsService - Profile & Resume Upload', () => {
 
       // The new Cloudinary file must be deleted to avoid orphaned storage
       expect(mockCloudinaryService.deletePdf).toHaveBeenCalledWith(
-        'placesync/resumes/resume_10_newpublicid',
+        'placesync/resumes/resume_10_newpublicid.pdf',
       );
       // The old Cloudinary file must NOT have been deleted
       expect(mockCloudinaryService.deletePdf).not.toHaveBeenCalledWith(
-        'placesync/resumes/resume_10_oldpublicid',
+        'placesync/resumes/resume_10_oldpublicid.pdf',
       );
     });
   });
@@ -273,7 +273,7 @@ describe('StudentsService - Profile & Resume Upload', () => {
 
       // Cloudinary delete was called
       expect(mockCloudinaryService.deletePdf).toHaveBeenCalledWith(
-        'placesync/resumes/resume_10_oldpublicid',
+        'placesync/resumes/resume_10_oldpublicid.pdf',
       );
 
       // DB update set both resume fields to null

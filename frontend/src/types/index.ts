@@ -42,3 +42,7 @@ export interface RegisterResponse {
   email: string;
   role: Role;
 }
+
+export * from './student';
+export * from './drive';
+export * from './application';

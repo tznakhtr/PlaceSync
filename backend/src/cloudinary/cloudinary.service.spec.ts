@@ -57,16 +57,19 @@ describe('CloudinaryService', () => {
     );
   });
 
-  it('uploadPdf should stream buffer to Cloudinary raw upload and return secure url', async () => {
+  it('uploadPdf should stream buffer to Cloudinary raw upload and return secure url ending with .pdf', async () => {
     const fakeResult = {
-      secure_url: 'https://res.cloudinary.com/test_cloud/raw/upload/v1/resume.pdf',
-      public_id: 'placesync/resumes/resume_10_abc123',
+      secure_url: 'https://res.cloudinary.com/test_cloud/raw/upload/v1/placesync/resumes/resume_10_abc123.pdf',
+      public_id: 'placesync/resumes/resume_10_abc123.pdf',
     };
 
     (cloudinary.uploader.upload_stream as jest.Mock).mockImplementation(
       (options, callback) => {
+        expect(options.resource_type).toBe('raw');
+        expect(options.public_id).toMatch(/^placesync\/resumes\/resume_10_[a-f0-9]+\.pdf$/);
         return {
           end: jest.fn((buffer) => {
+            expect(buffer).toEqual(Buffer.from('%PDF-1.4 test'));
             callback(null, fakeResult);
           }),
         };
@@ -80,19 +83,21 @@ describe('CloudinaryService', () => {
       url: fakeResult.secure_url,
       publicId: fakeResult.public_id,
     });
+    expect(result.url.endsWith('.pdf')).toBe(true);
+    expect(result.publicId.endsWith('.pdf')).toBe(true);
   });
 
-  it('deletePdf should call cloudinary.uploader.destroy with raw resource_type', async () => {
+  it('deletePdf should call cloudinary.uploader.destroy with raw resource_type and full public id', async () => {
     (cloudinary.uploader.destroy as jest.Mock).mockImplementation(
       (publicId, options, callback) => {
         callback(null, { result: 'ok' });
       },
     );
 
-    const result = await service.deletePdf('placesync/resumes/resume_10_abc123');
+    const result = await service.deletePdf('placesync/resumes/resume_10_abc123.pdf');
 
     expect(cloudinary.uploader.destroy).toHaveBeenCalledWith(
-      'placesync/resumes/resume_10_abc123',
+      'placesync/resumes/resume_10_abc123.pdf',
       { resource_type: 'raw' },
       expect.any(Function),
     );
