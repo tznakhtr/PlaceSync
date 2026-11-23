@@ -44,3 +44,4 @@ export interface RegisterResponse {
 }
 
 export * from './student';
+export * from './drive';

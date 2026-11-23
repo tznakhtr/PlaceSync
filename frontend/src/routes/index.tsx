@@ -13,7 +13,8 @@ import { CellResultsPage } from '../pages/cell/CellResultsPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { StudentApplicationsPage } from '../pages/student/StudentApplicationsPage';
 import { StudentDashboard } from '../pages/student/StudentDashboard';
-import { StudentDrivesPage } from '../pages/student/StudentDrivesPage';
+import { DrivesPage } from '../pages/student/DrivesPage';
+import { DriveDetailsPage } from '../pages/student/DriveDetailsPage';
 import { ProfilePage } from '../pages/student/ProfilePage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PublicOnlyRoute } from './PublicOnlyRoute';
@@ -51,7 +52,8 @@ export const AppRoutes: React.FC = () => {
         <Route element={<StudentLayout />}>
           <Route path="/student" element={<StudentDashboard />} />
           <Route path="/student/profile" element={<ProfilePage />} />
-          <Route path="/student/drives" element={<StudentDrivesPage />} />
+          <Route path="/student/drives" element={<DrivesPage />} />
+          <Route path="/student/drives/:id" element={<DriveDetailsPage />} />
           <Route path="/student/applications" element={<StudentApplicationsPage />} />
         </Route>
       </Route>
