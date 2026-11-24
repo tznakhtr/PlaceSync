@@ -7,6 +7,7 @@ import { getDrives } from '../../api/driveApi';
 import { getMyApplications } from '../../api/applicationApi';
 import { formatTodayDate } from '../../utils/format';
 import { countByStatus } from '../../utils/dashboard';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import { ProfileCompletenessCard } from './dashboard/ProfileCompletenessCard';
 import { EligibleDrivesWidget } from './dashboard/EligibleDrivesWidget';
 import { ApplicationStatusWidget } from './dashboard/ApplicationStatusWidget';
@@ -19,6 +20,7 @@ import { RecentNotificationsWidget } from './dashboard/RecentNotificationsWidget
  * eligible open drives, application tracking, and recent alerts.
  */
 export const StudentDashboard: React.FC = () => {
+  usePageTitle('Student Dashboard');
   const { user } = useAuth();
 
   // Extract first name for personalized greeting

@@ -22,6 +22,8 @@ import { getDrive } from '../../api/driveApi';
 import { getStudentProfile } from '../../api/studentApi';
 import { formatDateTime, formatLpa } from '../../utils/format';
 import { getErrorMessage } from '../../utils/getErrorMessage';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import { ForbiddenState } from '../../components/common/ForbiddenState';
 import { EligibilityPanel } from './drives/EligibilityPanel';
 import { ProfileComparison } from './drives/ProfileComparison';
 import { SkillChips } from './drives/SkillChips';
@@ -59,6 +61,9 @@ export const DriveDetailsPage: React.FC = () => {
 
   const profile = profileData?.profile ?? null;
   const isProfileComplete = profileData?.isComplete ?? false;
+
+  const pageTitle = drive?.companyName ? `${drive.companyName} | Drive Details` : 'Drive Details';
+  usePageTitle(pageTitle);
 
   // State: Invalid or Non-numeric ID
   if (isInvalidId) {
@@ -128,8 +133,9 @@ export const DriveDetailsPage: React.FC = () => {
 
   // State: 404 or API Error
   if (isDriveError || !drive) {
-    const is404 =
-      (driveError as { response?: { status?: number } })?.response?.status === 404;
+    const status = (driveError as { response?: { status?: number } })?.response?.status;
+    const is404 = status === 404;
+    const is403 = status === 403;
 
     return (
       <div className="space-y-6">
@@ -141,7 +147,9 @@ export const DriveDetailsPage: React.FC = () => {
           <span>Back to drives</span>
         </Link>
 
-        {is404 ? (
+        {is403 ? (
+          <ForbiddenState message="You do not have access to view this placement drive." />
+        ) : is404 ? (
           <EmptyState
             icon={<FileQuestion className="w-6 h-6 text-grey-400" />}
             title="Drive Not Found"

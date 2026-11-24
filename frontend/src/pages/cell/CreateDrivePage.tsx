@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import { createDrive } from '../../api/driveApi';
 import { useToast } from '../../context/useToast';
 import { getErrorMessage } from '../../utils/getErrorMessage';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import { DriveForm } from './drives/DriveForm';
 import type { DrivePayload } from '../../types/drive';
 
@@ -13,6 +14,7 @@ import type { DrivePayload } from '../../types/drive';
  * Form page for Placement Cell coordinators to publish a new placement drive.
  */
 export const CreateDrivePage: React.FC = () => {
+  usePageTitle('Create Placement Drive');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { success, error: toastError } = useToast();

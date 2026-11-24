@@ -10,6 +10,8 @@ import { Card } from '../components/ui/Card';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Pagination } from '../components/ui/Pagination';
 import { Skeleton } from '../components/ui/Skeleton';
+import { ForbiddenState } from '../components/common/ForbiddenState';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { NotificationItem } from '../components/notifications/NotificationItem';
 
 /**
@@ -18,6 +20,7 @@ import { NotificationItem } from '../components/notifications/NotificationItem';
  * Provides tabs ("All" vs "Unread"), paginated history, and bulk "Mark all as read" capability.
  */
 export const NotificationsPage: React.FC = () => {
+  usePageTitle('Notifications');
   const { user } = useAuth();
   const { success } = useToast();
   const { unreadCount } = useUnreadCount();
@@ -85,7 +88,12 @@ export const NotificationsPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-navy-900 tracking-tight">Notifications</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-navy-900 tracking-tight">Notifications</h1>
+            {isPlaceholderData && (
+              <span className="text-xs text-grey-400 font-medium animate-pulse">Updating...</span>
+            )}
+          </div>
           <p className="text-sm text-grey-500 mt-1">
             Stay updated on campus placement drives, applications, and announcements.
           </p>
@@ -157,24 +165,28 @@ export const NotificationsPage: React.FC = () => {
           ))}
         </Card>
       ) : isError ? (
-        <Card className="flex flex-col items-center justify-center p-8 sm:p-12 text-center">
-          <div className="w-12 h-12 rounded-full bg-danger/10 text-danger flex items-center justify-center mb-4 shrink-0">
-            <RefreshCw className="w-6 h-6" />
-          </div>
-          <h3 className="text-lg font-bold text-navy-900 mb-1">Failed to load notifications</h3>
-          <p className="text-sm text-grey-500 max-w-md mb-6">
-            {error instanceof Error ? error.message : 'An unexpected error occurred while fetching your notifications.'}
-          </p>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => refetch()}
-            leftIcon={<RefreshCw className="w-4 h-4" />}
-          >
-            Retry
-          </Button>
-        </Card>
+        (error as { response?: { status?: number } })?.response?.status === 403 ? (
+          <ForbiddenState message="You do not have access to view notifications." />
+        ) : (
+          <Card className="flex flex-col items-center justify-center p-8 sm:p-12 text-center">
+            <div className="w-12 h-12 rounded-full bg-danger/10 text-danger flex items-center justify-center mb-4 shrink-0">
+              <RefreshCw className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-navy-900 mb-1">Failed to load notifications</h3>
+            <p className="text-sm text-grey-500 max-w-md mb-6">
+              {error instanceof Error ? error.message : 'An unexpected error occurred while fetching your notifications.'}
+            </p>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => refetch()}
+              leftIcon={<RefreshCw className="w-4 h-4" />}
+            >
+              Retry
+            </Button>
+          </Card>
+        )
       ) : notifications.length === 0 ? (
         <EmptyState
           icon={isUnreadOnly ? <CheckCheck className="w-6 h-6 text-emerald-600" /> : <Bell className="w-6 h-6 text-navy-400" />}

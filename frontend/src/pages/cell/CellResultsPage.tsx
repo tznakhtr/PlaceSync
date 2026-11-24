@@ -10,6 +10,8 @@ import { getDrive } from '../../api/driveApi';
 import { getDriveApplicationsSummary } from '../../api/applicationApi';
 import { getResults } from '../../api/resultsApi';
 import { getErrorMessage } from '../../utils/getErrorMessage';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import { ForbiddenState } from '../../components/common/ForbiddenState';
 import { DriveSelector } from './applicants/DriveSelector';
 import { DriveInfoCard } from './applicants/DriveInfoCard';
 import { PublishPanel } from './results/PublishPanel';
@@ -23,6 +25,7 @@ import type { PublishResponse } from '../../types/results';
  * Renders PublishPanel for open/closed drives, or PublishedResults for completed drives.
  */
 export const CellResultsPage: React.FC = () => {
+  usePageTitle('Placement Results');
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -158,6 +161,14 @@ export const CellResultsPage: React.FC = () => {
 
   // State D: Drive 404 or Fetch Error
   if (isDriveError || !drive) {
+    if ((driveError as { response?: { status?: number } })?.response?.status === 403) {
+      return (
+        <div className="space-y-6">
+          <ForbiddenState message="You do not have access to view results for this placement drive." />
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

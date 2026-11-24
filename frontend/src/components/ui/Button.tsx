@@ -22,9 +22,9 @@ const variantClasses = {
 };
 
 const sizeClasses = {
-  sm: 'px-3 py-1.5 text-xs rounded-md font-medium gap-1.5',
-  md: 'px-4 py-2 text-sm rounded-lg font-medium gap-2',
-  lg: 'px-5 py-2.5 text-base rounded-lg font-semibold gap-2.5',
+  sm: 'min-h-[40px] sm:min-h-0 px-3 py-1.5 text-xs rounded-md font-medium gap-1.5',
+  md: 'min-h-[40px] px-4 py-2 text-sm rounded-lg font-medium gap-2',
+  lg: 'min-h-[44px] px-5 py-2.5 text-base rounded-lg font-semibold gap-2.5',
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(

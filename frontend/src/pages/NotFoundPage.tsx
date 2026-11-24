@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { Compass, Home } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export const NotFoundPage: React.FC = () => {
+  usePageTitle('Page Not Found');
   const { user } = useAuth();
 
   const homePath = user ? (user.role === 'CELL' ? '/cell' : '/student') : '/login';

@@ -25,6 +25,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     ref,
   ) => {
     const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
+    const errorId = inputId ? `${inputId}-error` : undefined;
+    const helperId = inputId ? `${inputId}-helper` : undefined;
+    const describedBy = error ? errorId : helperText ? helperId : undefined;
 
     return (
       <div className="w-full text-left">
@@ -34,7 +37,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className="block text-sm font-medium text-grey-700 mb-1.5"
           >
             {label}
-            {required && <span className="text-danger ml-1">*</span>}
+            {required && <span className="text-danger ml-1" aria-hidden="true">*</span>}
           </label>
         )}
 
@@ -49,7 +52,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             disabled={disabled}
-            className={`w-full rounded-lg border bg-surface text-grey-700 text-sm py-2 px-3
+            required={required}
+            aria-invalid={Boolean(error)}
+            aria-describedby={describedBy}
+            className={`w-full rounded-lg border bg-surface text-grey-700 text-base sm:text-sm py-2 px-3
               transition-colors duration-150 placeholder:text-grey-400
               ${leftIcon ? 'pl-9' : ''}
               ${rightIcon ? 'pr-9' : ''}
@@ -72,9 +78,13 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         </div>
 
         {error ? (
-          <p className="mt-1.5 text-xs text-danger font-medium">{error}</p>
+          <p id={errorId} className="mt-1.5 text-xs text-danger font-medium">
+            {error}
+          </p>
         ) : helperText ? (
-          <p className="mt-1.5 text-xs text-grey-500">{helperText}</p>
+          <p id={helperId} className="mt-1.5 text-xs text-grey-500">
+            {helperText}
+          </p>
         ) : null}
       </div>
     );

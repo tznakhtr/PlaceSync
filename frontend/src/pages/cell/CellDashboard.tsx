@@ -8,6 +8,7 @@ import { StatCard } from '../../components/ui/StatCard';
 import { useAuth } from '../../context/AuthContext';
 import { getDrives } from '../../api/driveApi';
 import { formatTodayDate } from '../../utils/format';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import { AttentionWidget } from './dashboard/AttentionWidget';
 import { ClosingSoonWidget } from './dashboard/ClosingSoonWidget';
 import { CompletedDrivesWidget } from './dashboard/CompletedDrivesWidget';
@@ -18,6 +19,7 @@ import { CompletedDrivesWidget } from './dashboard/CompletedDrivesWidget';
  * candidate attention queues, closing drives, and recent outcome registries.
  */
 export const CellDashboard: React.FC = () => {
+  usePageTitle('Placement Dashboard');
   const { user } = useAuth();
 
   const firstName = user?.name ? user.name.trim().split(/\s+/)[0] : 'Coordinator';

@@ -7,6 +7,8 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { Pagination } from '../../components/ui/Pagination';
 import { Select } from '../../components/ui/Select';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { ForbiddenState } from '../../components/common/ForbiddenState';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import { getDrives } from '../../api/driveApi';
 import { getErrorMessage } from '../../utils/getErrorMessage';
 import { CellDriveTable } from './drives/CellDriveTable';
@@ -19,6 +21,7 @@ import type { DriveQueryParams, DriveStatus } from '../../types/drive';
  * Displays responsive table on desktop (md+) and cards on mobile.
  */
 export const ManageDrivesPage: React.FC = () => {
+  usePageTitle('Manage Drives');
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -131,7 +134,12 @@ export const ManageDrivesPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-navy-900 tracking-tight">Manage Drives</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-navy-900 tracking-tight">Manage Drives</h1>
+            {isPlaceholderData && (
+              <span className="text-xs text-grey-400 font-medium animate-pulse">Updating...</span>
+            )}
+          </div>
           <p className="text-sm text-grey-500 mt-1">
             Create, monitor, and manage campus placement drives, applicant lists, and hiring statuses.
           </p>
@@ -193,21 +201,25 @@ export const ManageDrivesPage: React.FC = () => {
 
       {/* Error State */}
       {isError && (
-        <div className="p-4 rounded-xl bg-danger-bg border border-danger/20 flex items-center justify-between gap-3 text-sm text-danger">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            <span>{getErrorMessage(error, 'Failed to load placement drives.')}</span>
+        (error as { response?: { status?: number } })?.response?.status === 403 ? (
+          <ForbiddenState message="You do not have permission to manage placement drives." />
+        ) : (
+          <div className="p-4 rounded-xl bg-danger-bg border border-danger/20 flex items-center justify-between gap-3 text-sm text-danger">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <span>{getErrorMessage(error, 'Failed to load placement drives.')}</span>
+            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => refetch()}
+              leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+            >
+              Retry
+            </Button>
           </div>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => refetch()}
-            leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
-          >
-            Retry
-          </Button>
-        </div>
+        )
       )}
 
       {/* Loading Skeletons */}

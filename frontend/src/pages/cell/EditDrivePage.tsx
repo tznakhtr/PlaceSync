@@ -8,6 +8,8 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { getDrive, updateDrive } from '../../api/driveApi';
 import { useToast } from '../../context/useToast';
 import { getErrorMessage } from '../../utils/getErrorMessage';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import { ForbiddenState } from '../../components/common/ForbiddenState';
 import { DriveForm } from './drives/DriveForm';
 import type { DrivePayload } from '../../types/drive';
 
@@ -16,6 +18,7 @@ import type { DrivePayload } from '../../types/drive';
  * Form page for Placement Cell coordinators to update an existing placement drive.
  */
 export const EditDrivePage: React.FC = () => {
+  usePageTitle('Edit Placement Drive');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -105,6 +108,14 @@ export const EditDrivePage: React.FC = () => {
 
   // Error / Not found state
   if (isError || !drive) {
+    if ((error as { response?: { status?: number } })?.response?.status === 403) {
+      return (
+        <div className="max-w-xl mx-auto py-12">
+          <ForbiddenState message="You do not have permission to edit this placement drive." />
+        </div>
+      );
+    }
+
     return (
       <div className="max-w-xl mx-auto py-12">
         <Card className="p-8 text-center space-y-4">

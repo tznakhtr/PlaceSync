@@ -38,7 +38,7 @@ export const ApplicantTable: React.FC<ApplicantTableProps> = ({
   return (
     <div className="bg-surface border border-grey-200 rounded-xl overflow-hidden shadow-soft">
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm border-collapse">
+        <table className="w-full text-left text-sm border-collapse" aria-label="Student drive applicants table">
           <thead>
             <tr className="bg-grey-50/80 border-b border-grey-200 text-xs font-semibold text-grey-600 uppercase tracking-wider">
               <th scope="col" className="p-4 w-10 text-center">
