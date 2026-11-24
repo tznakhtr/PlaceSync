@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  Award,
   Edit2,
   Lock,
   Trash2,
   Unlock,
-  Users
+  Users,
 } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -159,6 +160,15 @@ export const CellDriveTable: React.FC<CellDriveTableProps> = ({ drives }) => {
                         title="View applicants"
                       >
                         <Users className="w-4 h-4" />
+                      </Link>
+
+                      {/* Results Link */}
+                      <Link
+                        to={`/cell/results?driveId=${drive.id}`}
+                        className="p-1.5 rounded-lg border border-grey-200 text-grey-700 hover:text-navy-900 hover:bg-grey-50 transition-colors"
+                        title={isCompleted ? 'View results' : 'Publish results'}
+                      >
+                        <Award className="w-4 h-4 text-emerald-700" />
                       </Link>
 
                       {/* Edit (Hidden for COMPLETED) */}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   AlertCircle,
+  Award,
   Building2,
   Clock,
   Edit2,
@@ -19,6 +20,7 @@ import type { Drive } from '../../../types/drive';
 
 export interface DriveInfoCardProps {
   drive: Drive;
+  currentSection?: 'applicants' | 'results';
 }
 
 /**
@@ -26,7 +28,10 @@ export interface DriveInfoCardProps {
  * Displays active drive parameters, package, deadline, status badge, skills, and applications count.
  * Shows completed drive warning banner if results are already published.
  */
-export const DriveInfoCard: React.FC<DriveInfoCardProps> = ({ drive }) => {
+export const DriveInfoCard: React.FC<DriveInfoCardProps> = ({
+  drive,
+  currentSection,
+}) => {
   const isCompleted = drive.status === 'COMPLETED';
 
   return (
@@ -46,7 +51,33 @@ export const DriveInfoCard: React.FC<DriveInfoCardProps> = ({ drive }) => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center flex-wrap gap-2">
+          {/* View Applicants Link (shown on results or when unspecified) */}
+          {currentSection !== 'applicants' && (
+            <Link to={`/cell/applicants?driveId=${drive.id}`}>
+              <Button
+                variant="secondary"
+                size="sm"
+                leftIcon={<Users className="w-3.5 h-3.5" />}
+              >
+                View applicants
+              </Button>
+            </Link>
+          )}
+
+          {/* Results Link (shown on applicants or when unspecified) */}
+          {currentSection !== 'results' && (
+            <Link to={`/cell/results?driveId=${drive.id}`}>
+              <Button
+                variant="secondary"
+                size="sm"
+                leftIcon={<Award className="w-3.5 h-3.5" />}
+              >
+                {isCompleted ? 'View results' : 'Publish results'}
+              </Button>
+            </Link>
+          )}
+
           {!isCompleted && (
             <Link to={`/cell/drives/${drive.id}/edit`}>
               <Button
@@ -58,6 +89,7 @@ export const DriveInfoCard: React.FC<DriveInfoCardProps> = ({ drive }) => {
               </Button>
             </Link>
           )}
+
           <Link to={`/student/drives/${drive.id}`} target="_blank" rel="noopener noreferrer">
             <Button
               variant="secondary"

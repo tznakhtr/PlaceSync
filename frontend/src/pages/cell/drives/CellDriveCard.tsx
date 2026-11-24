@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  Award,
   Building2,
   Edit2,
   GraduationCap,
@@ -141,16 +142,29 @@ export const CellDriveCard: React.FC<CellDriveCardProps> = ({ drive }) => {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-          <Link to={`/cell/applicants?driveId=${drive.id}`}>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              leftIcon={<Users className="w-3.5 h-3.5" />}
-            >
-              View applicants
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link to={`/cell/applicants?driveId=${drive.id}`}>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                leftIcon={<Users className="w-3.5 h-3.5" />}
+              >
+                Applicants
+              </Button>
+            </Link>
+
+            <Link to={`/cell/results?driveId=${drive.id}`}>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                leftIcon={<Award className="w-3.5 h-3.5" />}
+              >
+                {isCompleted ? 'View results' : 'Publish results'}
+              </Button>
+            </Link>
+          </div>
 
           <div className="flex items-center gap-2">
             {!isCompleted && (
