@@ -278,8 +278,10 @@ export class DrivesService {
   }
 
   /**
-   * Update status of a drive (OPEN, CLOSED, COMPLETED).
+   * Update status of a drive (OPEN, CLOSED).
    * Throws 404 if drive does not exist.
+   * Throws 400 if drive is already COMPLETED ("Results are already published; the status cannot be changed").
+   * Throws 400 if target status is COMPLETED ("A drive becomes completed only when results are published").
    */
   async updateStatus(id: number, dto: UpdateDriveStatusDto) {
     const existingDrive = await this.prisma.drive.findUnique({
@@ -290,10 +292,18 @@ export class DrivesService {
       throw new NotFoundException(`Drive with ID ${id} not found`);
     }
 
+    if (existingDrive.status === DriveStatus.COMPLETED) {
+      throw new BadRequestException('Results are already published; the status cannot be changed');
+    }
+
+    if (dto.status === 'COMPLETED') {
+      throw new BadRequestException('A drive becomes completed only when results are published');
+    }
+
     return this.prisma.drive.update({
       where: { id },
       data: {
-        status: dto.status,
+        status: dto.status as DriveStatus,
       },
       include: {
         createdBy: {

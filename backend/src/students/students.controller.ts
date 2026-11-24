@@ -12,6 +12,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Throttle } from '@nestjs/throttler';
 import { Role } from '@prisma/client';
 import * as multer from 'multer';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -65,9 +66,11 @@ export class StudentsController {
    * POST /students/me/resume
    * Uploads student resume PDF into Cloudinary using in-memory storage.
    * Strict 2 MB limit; rejects non-PDFs and uncompleted profiles.
+   * Rate limited: 10 requests per minute per IP.
    */
   @Post('me/resume')
   @Roles(Role.STUDENT)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @UseFilters(MulterExceptionFilter)
   @UseInterceptors(
     FileInterceptor('resume', {
