@@ -14,3 +14,5 @@ export * from './Switch';
 export * from './Skeleton';
 export * from './Pagination';
 export * from './EmptyState';
+export * from './StatCard';
+export * from './ProgressBar';

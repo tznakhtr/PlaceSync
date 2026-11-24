@@ -99,6 +99,18 @@ export function toLocalInputValue(iso: string | Date): string {
 }
 
 /**
+ * Format today's date in en-IN locale (e.g. "Tuesday, 24 Nov 2026").
+ */
+export function formatTodayDate(): string {
+  return new Intl.DateTimeFormat('en-IN', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date());
+}
+
+/**
  * Build a human-readable eligibility preview sentence from form values.
  * e.g. "CSE and IT students of the 2028 batch with CGPA 7.5 or above and at most 0 active backlogs."
  */
