@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { queryClient } from './queryClient';
 
 export const TOKEN_STORAGE_KEY = 'placesync_token';
 
@@ -35,6 +36,7 @@ apiClient.interceptors.response.use(
 
     if (status === 401 && !isAuthRoute) {
       localStorage.removeItem(TOKEN_STORAGE_KEY);
+      queryClient.clear();
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { authApi } from '../api/auth';
 import { TOKEN_STORAGE_KEY } from '../api/axios';
+import { queryClient } from '../api/queryClient';
 import { Spinner } from '../components/ui/Spinner';
 import type { User } from '../types';
 import { AuthContext } from './auth-context';
@@ -58,6 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem(TOKEN_STORAGE_KEY);
     setToken(null);
     setUser(null);
+    queryClient.clear();
   };
 
   // Full-page loading spinner while verifying token on startup

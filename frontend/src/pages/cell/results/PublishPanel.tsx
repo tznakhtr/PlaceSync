@@ -58,6 +58,7 @@ export const PublishPanel: React.FC<PublishPanelProps> = ({
       queryClient.invalidateQueries({ queryKey: ['drive-applications-summary', drive.id] });
       queryClient.invalidateQueries({ queryKey: ['drive-results', drive.id] });
       queryClient.invalidateQueries({ queryKey: ['my-applications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
 
       onPublishSuccess(res);
     },

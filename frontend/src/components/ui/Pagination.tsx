@@ -6,6 +6,8 @@ export interface PaginationProps {
   page: number;
   totalPages: number;
   totalCount?: number;
+  itemLabel?: string;
+  itemLabelPlural?: string;
   onPageChange: (newPage: number) => void;
   isLoading?: boolean;
   className?: string;
@@ -22,6 +24,8 @@ export const Pagination: React.FC<PaginationProps> = ({
   page,
   totalPages,
   totalCount,
+  itemLabel = 'drive',
+  itemLabelPlural = 'drives',
   onPageChange,
   isLoading = false,
   className = '',
@@ -55,7 +59,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         <span className="font-semibold text-grey-700">{safeTotalPages}</span>
         {totalCount !== undefined && (
           <span className="ml-1.5 text-grey-400">
-            ({totalCount} {totalCount === 1 ? 'drive' : 'drives'} total)
+            ({totalCount} {totalCount === 1 ? itemLabel : itemLabelPlural} total)
           </span>
         )}
       </div>

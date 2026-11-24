@@ -150,6 +150,7 @@ export const CellApplicantsPage: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: ['drive-applications-summary', driveId] });
     queryClient.invalidateQueries({ queryKey: ['drive', driveId] });
     queryClient.invalidateQueries({ queryKey: ['drives'] });
+    queryClient.invalidateQueries({ queryKey: ['notifications'] });
   };
 
   // Single status mutation

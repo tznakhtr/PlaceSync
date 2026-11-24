@@ -12,6 +12,7 @@ import { CellDrivesPage } from '../pages/cell/CellDrivesPage';
 import { CreateDrivePage } from '../pages/cell/CreateDrivePage';
 import { EditDrivePage } from '../pages/cell/EditDrivePage';
 import { CellResultsPage } from '../pages/cell/CellResultsPage';
+import { NotificationsPage } from '../pages/NotificationsPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { ApplicationsPage } from '../pages/student/ApplicationsPage';
 import { StudentDashboard } from '../pages/student/StudentDashboard';
@@ -57,6 +58,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="/student/drives" element={<DrivesPage />} />
           <Route path="/student/drives/:id" element={<DriveDetailsPage />} />
           <Route path="/student/applications" element={<ApplicationsPage />} />
+          <Route path="/student/notifications" element={<NotificationsPage />} />
         </Route>
       </Route>
 
@@ -69,6 +71,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="/cell/drives/:id/edit" element={<EditDrivePage />} />
           <Route path="/cell/applicants" element={<CellApplicantsPage />} />
           <Route path="/cell/results" element={<CellResultsPage />} />
+          <Route path="/cell/notifications" element={<NotificationsPage />} />
         </Route>
       </Route>
 
