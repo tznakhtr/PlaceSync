@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 /**
  * Data Transfer Object for user login.
@@ -11,6 +11,6 @@ export class LoginDto {
 
   @IsString()
   @IsNotEmpty({ message: 'Password is required' })
+  @MaxLength(72, { message: 'Password cannot exceed 72 characters' })
   password: string;
 }
-

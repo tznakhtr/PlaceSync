@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 
 /**
  * Data Transfer Object for user registration.
@@ -16,6 +16,6 @@ export class RegisterDto {
 
   @IsString()
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
+  @MaxLength(72, { message: 'Password cannot exceed 72 characters' })
   password: string;
 }
-
