@@ -3,9 +3,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, Mail, User } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { FormError } from '../../components/ui/FormError';
-import { Input } from '../../components/ui/Input';
+import { IconInput } from '../../components/ui/IconInput';
+import { PasswordInput } from '../../components/ui/PasswordInput';
 import { useAuth } from '../../context/AuthContext';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { getErrorMessage } from '../../utils/getErrorMessage';
@@ -37,7 +39,7 @@ export const RegisterPage: React.FC = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, submitCount },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -62,8 +64,10 @@ export const RegisterPage: React.FC = () => {
   return (
     <div>
       <div className="mb-6 text-center">
-        <h2 className="text-xl font-bold text-navy-900">Create student account</h2>
-        <p className="text-xs text-grey-500 mt-1">
+        <h1 className="text-xl sm:text-2xl font-bold text-navy-900 tracking-tight">
+          Create student account
+        </h1>
+        <p className="text-xs sm:text-sm text-grey-500 mt-1">
           Join PlaceSync to apply for campus placement drives
         </p>
       </div>
@@ -71,42 +75,45 @@ export const RegisterPage: React.FC = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         <FormError message={serverError} />
 
-        <Input
+        <IconInput
           label="Full Name"
           type="text"
           placeholder="Jane Doe"
           autoComplete="name"
           required
+          leftIcon={<User className="w-5 h-5 text-grey-400" />}
           error={errors.name?.message}
           {...register('name')}
         />
 
-        <Input
+        <IconInput
           label="College Email Address"
           type="email"
+          inputMode="email"
           placeholder="jane.doe@college.edu"
           autoComplete="email"
           required
+          leftIcon={<Mail className="w-5 h-5 text-grey-400" />}
           error={errors.email?.message}
           {...register('email')}
         />
 
-        <Input
+        <PasswordInput
           label="Password"
-          type="password"
           placeholder="Minimum 8 characters"
           autoComplete="new-password"
           required
+          resetKey={submitCount}
           error={errors.password?.message}
           {...register('password')}
         />
 
-        <Input
+        <PasswordInput
           label="Confirm Password"
-          type="password"
           placeholder="Re-enter your password"
           autoComplete="new-password"
           required
+          resetKey={submitCount}
           error={errors.confirmPassword?.message}
           {...register('confirmPassword')}
         />
@@ -117,20 +124,33 @@ export const RegisterPage: React.FC = () => {
           fullWidth
           size="lg"
           isLoading={isSubmitting}
-          className="mt-2"
+          className="mt-2 min-h-[44px] flex items-center justify-center gap-2"
         >
-          Create Account
+          <span>Create Account</span>
+          {!isSubmitting && (
+            <ArrowRight className="w-4 h-4 ml-0.5" aria-hidden="true" />
+          )}
         </Button>
       </form>
 
-      <div className="mt-6 text-center">
+      <div className="mt-6 text-center space-y-2">
         <p className="text-xs text-grey-500">
           Already registered?{' '}
           <Link
             to="/login"
-            className="font-semibold text-navy-700 hover:text-navy-900 transition-colors"
+            className="font-semibold text-navy-700 hover:text-navy-900 transition-colors underline-offset-2 hover:underline"
           >
             Sign In
+          </Link>
+        </p>
+
+        <p className="text-xs text-grey-400">
+          Administrator?{' '}
+          <Link
+            to="/login?as=admin"
+            className="font-semibold text-navy-700 hover:text-navy-900 transition-colors underline-offset-2 hover:underline"
+          >
+            Admin login
           </Link>
         </p>
       </div>

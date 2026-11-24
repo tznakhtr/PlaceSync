@@ -17,7 +17,7 @@ export const AuthLayout: React.FC = () => {
           <div className="w-12 h-12 rounded-xl bg-navy-700 text-white flex items-center justify-center shadow-md mb-3">
             <GraduationCap className="w-7 h-7 text-emerald-500" />
           </div>
-          <h1 className="text-2xl font-bold text-navy-900 tracking-tight">PlaceSync</h1>
+          <p className="text-2xl font-bold text-navy-900 tracking-tight">PlaceSync</p>
           <p className="text-sm text-grey-500 mt-1">Campus Placement Portal</p>
         </div>
 

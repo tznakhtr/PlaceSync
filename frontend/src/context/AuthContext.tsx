@@ -6,9 +6,12 @@ import { Spinner } from '../components/ui/Spinner';
 import { storage } from '../utils/storage';
 import type { User } from '../types';
 import { AuthContext } from './auth-context';
+import { RoleMismatchError } from './RoleMismatchError';
 
 // oxlint-disable-next-line react/only-export-components
 export { useAuth } from './useAuth';
+// oxlint-disable-next-line react/only-export-components
+export { RoleMismatchError } from './RoleMismatchError';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -41,8 +44,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     restoreSession();
   }, []);
 
-  const login = async (email: string, password: string): Promise<User> => {
+  const login = async (
+    email: string,
+    password: string,
+    expectedRole?: 'STUDENT' | 'CELL',
+  ): Promise<User> => {
     const res = await authApi.login({ email, password });
+
+    // Validate account role against expected portal before saving credentials
+    if (expectedRole && res.user.role !== expectedRole) {
+      throw new RoleMismatchError(res.user.role as 'STUDENT' | 'CELL');
+    }
+
     storage.setItem(TOKEN_STORAGE_KEY, res.accessToken);
     setToken(res.accessToken);
     setUser(res.user);
