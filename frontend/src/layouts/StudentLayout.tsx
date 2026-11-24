@@ -12,12 +12,16 @@ import {
   X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { NotificationBell } from '../components/notifications/NotificationBell';
+import { OfflineBanner } from '../components/common/OfflineBanner';
+import { ErrorBoundary } from '../components/common/ErrorBoundary';
 
 const navItems = [
   { to: '/student', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/student/profile', label: 'My Profile', icon: User, end: false },
   { to: '/student/drives', label: 'Drives', icon: Briefcase, end: false },
   { to: '/student/applications', label: 'My Applications', icon: FileText, end: false },
+  { to: '/student/notifications', label: 'Notifications', icon: Bell, end: false },
 ];
 
 export const StudentLayout: React.FC = () => {
@@ -34,6 +38,14 @@ export const StudentLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-page flex">
+      {/* Skip to Main Content Link for Keyboard and Screen Reader Accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-navy-900 focus:text-white focus:rounded-lg focus:shadow-lg focus:ring-2 focus:ring-emerald-500"
+      >
+        Skip to main content
+      </a>
+
       {/* Mobile Drawer Overlay */}
       {mobileOpen && (
         <div
@@ -68,7 +80,7 @@ export const StudentLayout: React.FC = () => {
           </div>
 
           {/* Navigation Links */}
-          <nav className="p-4 space-y-1">
+          <nav aria-label="Student Portal Navigation" className="p-4 space-y-1">
             <p className="px-3 py-2 text-xs font-semibold text-grey-500 uppercase tracking-wider">
               Student Portal
             </p>
@@ -112,6 +124,9 @@ export const StudentLayout: React.FC = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col md:pl-64 min-w-0 min-h-screen">
+        {/* Offline Notification Banner */}
+        <OfflineBanner />
+
         {/* Top bar */}
         <header className="h-16 bg-surface border-b border-grey-200 sticky top-0 z-30 flex items-center justify-between px-4 sm:px-8">
           <div className="flex items-center gap-3">
@@ -126,14 +141,8 @@ export const StudentLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Notifications Bell Placeholder */}
-            <button
-              className="p-2 text-grey-500 hover:text-navy-700 hover:bg-grey-50 rounded-full transition-colors relative"
-              title="Notifications"
-              aria-label="Notifications"
-            >
-              <Bell className="w-5 h-5" />
-            </button>
+            {/* Notifications Bell */}
+            <NotificationBell />
 
             {/* User Pill */}
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-grey-50 border border-grey-200 rounded-full text-xs">
@@ -146,7 +155,7 @@ export const StudentLayout: React.FC = () => {
             {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-grey-700 hover:text-navy-900 hover:bg-grey-50 px-2.5 py-1.5 rounded-lg border border-grey-200 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-grey-700 hover:text-navy-900 hover:bg-grey-50 px-2.5 py-1.5 rounded-lg border border-grey-200 transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4 text-grey-500" />
               <span>Logout</span>
@@ -154,9 +163,15 @@ export const StudentLayout: React.FC = () => {
           </div>
         </header>
 
-        {/* Page Outlet */}
-        <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
-          <Outlet />
+        {/* Page Main Content with ErrorBoundary */}
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto focus:outline-none"
+        >
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button';
 import { FormError } from '../../components/ui/FormError';
 import { Input } from '../../components/ui/Input';
 import { useAuth } from '../../context/AuthContext';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import { getErrorMessage } from '../../utils/getErrorMessage';
 
 const registerSchema = z
@@ -28,6 +29,7 @@ const registerSchema = z
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export const RegisterPage: React.FC = () => {
+  usePageTitle('Register');
   const { register: registerAuth } = useAuth();
   const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);

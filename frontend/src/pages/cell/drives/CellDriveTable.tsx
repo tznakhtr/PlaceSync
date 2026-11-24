@@ -73,16 +73,16 @@ export const CellDriveTable: React.FC<CellDriveTableProps> = ({ drives }) => {
   return (
     <>
       <div className="overflow-x-auto rounded-xl border border-grey-200 bg-surface shadow-soft">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full text-left border-collapse" aria-label="Campus recruitment drives table">
           <thead>
             <tr className="bg-grey-50 border-b border-grey-200 text-[11px] font-semibold text-grey-500 uppercase tracking-wider">
-              <th className="py-3 px-4">Company & Role</th>
-              <th className="py-3 px-4">Package</th>
-              <th className="py-3 px-4">Batch</th>
-              <th className="py-3 px-4">Deadline</th>
-              <th className="py-3 px-4 text-center">Applicants</th>
-              <th className="py-3 px-4">Status</th>
-              <th className="py-3 px-4 text-right">Actions</th>
+              <th scope="col" className="py-3 px-4">Company & Role</th>
+              <th scope="col" className="py-3 px-4">Package</th>
+              <th scope="col" className="py-3 px-4">Batch</th>
+              <th scope="col" className="py-3 px-4">Deadline</th>
+              <th scope="col" className="py-3 px-4 text-center">Applicants</th>
+              <th scope="col" className="py-3 px-4">Status</th>
+              <th scope="col" className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-grey-200 text-xs bg-surface text-grey-700">

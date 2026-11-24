@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { queryClient } from './queryClient';
+import { storage } from '../utils/storage';
 
 export const TOKEN_STORAGE_KEY = 'placesync_token';
 
@@ -11,10 +13,10 @@ export const apiClient = axios.create({
   },
 });
 
-// Request interceptor: attach Bearer token if present
+// Request interceptor: attach Bearer token if present in safe storage
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+    const token = storage.getItem(TOKEN_STORAGE_KEY);
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -34,7 +36,13 @@ apiClient.interceptors.response.use(
     const isAuthRoute = url.includes('/auth/login') || url.includes('/auth/register');
 
     if (status === 401 && !isAuthRoute) {
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
+      storage.removeItem(TOKEN_STORAGE_KEY);
+      try {
+        sessionStorage.setItem('placesync_session_expired', 'true');
+      } catch {
+        // Ignore session storage errors
+      }
+      queryClient.clear();
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }

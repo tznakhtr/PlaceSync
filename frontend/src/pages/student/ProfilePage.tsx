@@ -3,7 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, AlertTriangle, CheckCircle2, RefreshCw } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { Spinner } from '../../components/ui/Spinner';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { ForbiddenState } from '../../components/common/ForbiddenState';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import { getBranches, getStudentProfile } from '../../api/studentApi';
 import { getErrorMessage } from '../../utils/getErrorMessage';
 import { ProfileForm } from './profile/ProfileForm';
@@ -14,6 +16,7 @@ import { ResumeCard } from './profile/ResumeCard';
  * Allows student to view and update academic details and upload their PDF resume.
  */
 export const ProfilePage: React.FC = () => {
+  usePageTitle('My Profile');
   // TanStack Query for student profile
   const {
     data: profileData,
@@ -39,14 +42,39 @@ export const ProfilePage: React.FC = () => {
   const profile = profileData?.profile ?? null;
   const isComplete = profileData?.isComplete ?? false;
 
-  // Initial loading state
+  // Initial loading state with proper skeleton layout
   if (isProfileLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[450px] space-y-4">
-        <Spinner size="lg" variant="emerald" />
-        <p className="text-sm font-medium text-grey-500">Loading student profile...</p>
+      <div className="space-y-6 max-w-7xl mx-auto">
+        <div>
+          <Skeleton className="h-8 w-48 mb-2" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="lg:col-span-7">
+            <Card className="p-6 space-y-4">
+              <Skeleton className="h-6 w-36" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <Skeleton className="h-24 w-full" />
+            </Card>
+          </div>
+          <div className="lg:col-span-5">
+            <Card className="p-6 space-y-4">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-32 w-full rounded-xl" />
+            </Card>
+          </div>
+        </div>
       </div>
     );
+  }
+
+  // 403 Forbidden Access State
+  if (isProfileError && (profileError as { response?: { status?: number } })?.response?.status === 403) {
+    return <ForbiddenState message="You do not have permission to view this student profile." />;
   }
 
   // Error state with retry button

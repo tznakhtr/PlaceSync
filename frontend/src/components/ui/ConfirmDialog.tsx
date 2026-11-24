@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 import { Button } from './Button';
 
@@ -16,6 +16,7 @@ export interface ConfirmDialogProps {
 
 /**
  * Reusable confirmation dialog modal with backdrop and action buttons.
+ * Accessible: role="dialog" aria-modal="true", keyboard focus trapped, Escape closes, focus returned to trigger.
  */
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   isOpen,
@@ -28,15 +29,60 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   isLoading = false,
   variant = 'danger',
 }) => {
-  // Close on Escape key press
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  // Focus trap, previous focus restoration, and Escape listener
   useEffect(() => {
+    if (!isOpen) return;
+
+    previousFocusRef.current = document.activeElement as HTMLElement | null;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen && !isLoading) {
+      if (e.key === 'Escape' && !isLoading) {
+        e.preventDefault();
         onClose();
+        return;
+      }
+
+      if (e.key === 'Tab' && dialogRef.current) {
+        const focusableElements = dialogRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    // Initial focus into dialog
+    const timer = setTimeout(() => {
+      const firstButton = dialogRef.current?.querySelector<HTMLButtonElement>(
+        'button:not([disabled])',
+      );
+      firstButton?.focus();
+    }, 50);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      clearTimeout(timer);
+      previousFocusRef.current?.focus();
+    };
   }, [isOpen, isLoading, onClose]);
 
   if (!isOpen) return null;
@@ -49,6 +95,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       aria-labelledby="confirm-dialog-title"
     >
       <div
+        ref={dialogRef}
         className="bg-surface rounded-xl border border-grey-200 shadow-xl max-w-md w-full p-6 text-left animate-in fade-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
@@ -74,7 +121,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="text-grey-400 hover:text-grey-700 p-1 rounded-lg transition-colors disabled:opacity-50"
+            className="text-grey-400 hover:text-grey-700 p-1 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
@@ -101,6 +148,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             size="md"
             onClick={onConfirm}
             isLoading={isLoading}
+            disabled={isLoading}
           >
             {confirmText}
           </Button>

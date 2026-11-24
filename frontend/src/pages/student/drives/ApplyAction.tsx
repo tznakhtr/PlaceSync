@@ -45,6 +45,7 @@ export const ApplyAction: React.FC<ApplyActionProps> = ({ drive }) => {
     queryClient.invalidateQueries({ queryKey: ['my-applications'] });
     queryClient.invalidateQueries({ queryKey: ['drives'] });
     queryClient.invalidateQueries({ queryKey: ['drive', drive.id] });
+    queryClient.invalidateQueries({ queryKey: ['notifications'] });
   };
 
   // Mutation: Apply to Drive

@@ -25,6 +25,8 @@ import {
 import { useToast } from '../../context/useToast';
 import { getErrorMessage } from '../../utils/getErrorMessage';
 import { getStatusActionLabel } from '../../utils/applicationRules';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import { ForbiddenState } from '../../components/common/ForbiddenState';
 import { DriveSelector } from './applicants/DriveSelector';
 import { DriveInfoCard } from './applicants/DriveInfoCard';
 import { ApplicationsSummaryFunnel } from './applicants/ApplicationsSummaryFunnel';
@@ -44,6 +46,7 @@ import type {
  * Accessible at /cell/applicants?driveId=<id>.
  */
 export const CellApplicantsPage: React.FC = () => {
+  usePageTitle('Review Applicants');
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
@@ -150,6 +153,7 @@ export const CellApplicantsPage: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: ['drive-applications-summary', driveId] });
     queryClient.invalidateQueries({ queryKey: ['drive', driveId] });
     queryClient.invalidateQueries({ queryKey: ['drives'] });
+    queryClient.invalidateQueries({ queryKey: ['notifications'] });
   };
 
   // Single status mutation
@@ -403,6 +407,14 @@ export const CellApplicantsPage: React.FC = () => {
 
   // Drive 404 or Fetch Error
   if (isDriveError || !drive) {
+    if ((driveError as { response?: { status?: number } })?.response?.status === 403) {
+      return (
+        <div className="space-y-6">
+          <ForbiddenState message="You do not have access to view applicants for this drive." />
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -449,7 +461,12 @@ export const CellApplicantsPage: React.FC = () => {
             <span className="text-grey-300">/</span>
             <span className="text-xs font-semibold text-navy-800">{drive.companyName}</span>
           </div>
-          <h1 className="text-2xl font-bold text-navy-900 tracking-tight">Applicants</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-navy-900 tracking-tight">Applicants</h1>
+            {isPlaceholderData && (
+              <span className="text-xs text-grey-400 font-medium animate-pulse">Updating...</span>
+            )}
+          </div>
         </div>
 
         <DriveSelector selectedDriveId={driveId} onSelectDrive={handleSelectDrive} />

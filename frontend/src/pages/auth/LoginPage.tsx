@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,6 +7,8 @@ import { Button } from '../../components/ui/Button';
 import { FormError } from '../../components/ui/FormError';
 import { Input } from '../../components/ui/Input';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/useToast';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import { getErrorMessage } from '../../utils/getErrorMessage';
 
 const loginSchema = z.object({
@@ -21,9 +23,23 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export const LoginPage: React.FC = () => {
+  usePageTitle('Sign In');
   const { login } = useAuth();
+  const { error: toastError } = useToast();
   const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);
+
+  // One-time session expired notification when redirected from 401 interceptor
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('placesync_session_expired') === 'true') {
+        sessionStorage.removeItem('placesync_session_expired');
+        toastError('Your session expired. Please log in again.');
+      }
+    } catch {
+      // Ignore
+    }
+  }, [toastError]);
 
   const {
     register,

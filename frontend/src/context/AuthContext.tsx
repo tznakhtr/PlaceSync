@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { authApi } from '../api/auth';
 import { TOKEN_STORAGE_KEY } from '../api/axios';
+import { queryClient } from '../api/queryClient';
 import { Spinner } from '../components/ui/Spinner';
+import { storage } from '../utils/storage';
 import type { User } from '../types';
 import { AuthContext } from './auth-context';
 
@@ -10,13 +12,13 @@ export { useAuth } from './useAuth';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_STORAGE_KEY));
+  const [token, setToken] = useState<string | null>(() => storage.getItem(TOKEN_STORAGE_KEY));
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Restore user session on application initialization
   useEffect(() => {
     const restoreSession = async () => {
-      const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+      const storedToken = storage.getItem(TOKEN_STORAGE_KEY);
       if (!storedToken) {
         setIsLoading(false);
         return;
@@ -28,7 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setToken(storedToken);
       } catch {
         // Clear invalid or expired credentials
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
+        storage.removeItem(TOKEN_STORAGE_KEY);
         setToken(null);
         setUser(null);
       } finally {
@@ -41,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<User> => {
     const res = await authApi.login({ email, password });
-    localStorage.setItem(TOKEN_STORAGE_KEY, res.accessToken);
+    storage.setItem(TOKEN_STORAGE_KEY, res.accessToken);
     setToken(res.accessToken);
     setUser(res.user);
     return res.user;
@@ -55,9 +57,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    storage.removeItem(TOKEN_STORAGE_KEY);
     setToken(null);
     setUser(null);
+    queryClient.clear();
   };
 
   // Full-page loading spinner while verifying token on startup

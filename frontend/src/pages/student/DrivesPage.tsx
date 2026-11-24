@@ -10,11 +10,14 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { getDrives } from '../../api/driveApi';
 import { getStudentProfile } from '../../api/studentApi';
 import { getErrorMessage } from '../../utils/getErrorMessage';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import { ForbiddenState } from '../../components/common/ForbiddenState';
 import { DriveCard } from './drives/DriveCard';
 import { DriveFilters } from './drives/DriveFilters';
 import type { DriveQueryParams, DriveStatus } from '../../types/drive';
 
 export const DrivesPage: React.FC = () => {
+  usePageTitle('Placement Drives');
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Extract query filters from URL query parameters
@@ -134,7 +137,12 @@ export const DrivesPage: React.FC = () => {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-navy-900">Campus Drives</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-navy-900">Campus Drives</h1>
+          {isPlaceholderData && (
+            <span className="text-xs text-grey-400 font-medium animate-pulse">Updating...</span>
+          )}
+        </div>
         <p className="text-sm text-grey-500 mt-1">
           Explore upcoming company recruitment visits, packages, and eligibility requirements.
         </p>
@@ -203,25 +211,29 @@ export const DrivesPage: React.FC = () => {
 
       {/* Error State */}
       {isError && (
-        <Card className="p-8 text-center flex flex-col items-center">
-          <div className="w-12 h-12 rounded-full bg-danger-bg text-danger flex items-center justify-center mb-3">
-            <AlertTriangle className="w-6 h-6" />
-          </div>
-          <h3 className="text-base font-bold text-navy-900 mb-1">
-            Unable to Load Drives
-          </h3>
-          <p className="text-sm text-grey-500 max-w-md mb-6">
-            {getErrorMessage(error, 'Failed to fetch placement drives. Please check your network and try again.')}
-          </p>
-          <Button
-            variant="primary"
-            size="md"
-            onClick={() => refetch()}
-            leftIcon={<RefreshCw className="w-4 h-4" />}
-          >
-            Retry
-          </Button>
-        </Card>
+        (error as { response?: { status?: number } })?.response?.status === 403 ? (
+          <ForbiddenState message="You do not have access to view placement drives." />
+        ) : (
+          <Card className="p-8 text-center flex flex-col items-center">
+            <div className="w-12 h-12 rounded-full bg-danger-bg text-danger flex items-center justify-center mb-3">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-navy-900 mb-1">
+              Unable to Load Drives
+            </h3>
+            <p className="text-sm text-grey-500 max-w-md mb-6">
+              {getErrorMessage(error, 'Failed to fetch placement drives. Please check your network and try again.')}
+            </p>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => refetch()}
+              leftIcon={<RefreshCw className="w-4 h-4" />}
+            >
+              Retry
+            </Button>
+          </Card>
+        )
       )}
 
       {/* Empty State */}

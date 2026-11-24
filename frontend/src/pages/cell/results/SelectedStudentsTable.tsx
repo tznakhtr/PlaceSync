@@ -240,7 +240,7 @@ export const SelectedStudentsTable: React.FC<SelectedStudentsTableProps> = ({
         <div className="space-y-4">
           {/* Desktop Table View */}
           <div className="hidden md:block bg-surface border border-grey-200 rounded-xl overflow-hidden shadow-soft">
-            <table className="w-full text-left text-sm border-collapse">
+            <table className="w-full text-left text-sm border-collapse" aria-label="Selected hired candidates table">
               <thead>
                 <tr className="bg-grey-50/80 border-b border-grey-200 text-xs font-semibold text-grey-600 uppercase tracking-wider">
                   <th scope="col" className="py-3 px-4">Student</th>

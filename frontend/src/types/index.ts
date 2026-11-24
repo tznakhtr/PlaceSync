@@ -47,3 +47,4 @@ export * from './student';
 export * from './drive';
 export * from './application';
 export * from './results';
+export * from './notification';
