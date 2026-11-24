@@ -456,7 +456,7 @@ export const CellApplicantsPage: React.FC = () => {
       </div>
 
       {/* Selected Drive Overview Card */}
-      <DriveInfoCard drive={drive} />
+      <DriveInfoCard drive={drive} currentSection="applicants" />
 
       {/* Recruitment Funnel Summary Cards */}
       {summary && (
